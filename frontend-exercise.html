@@ -88,7 +88,7 @@ For example (not to scale):
   	function BarGroup(props) {
 		let barPadding = 2
 		let barColour = '#348AA7'
-		let widthScale = d => d * 10
+		let widthScale = d => d
 
 		let width = widthScale(props.d.value)
 		let yMid = props.barHeight * 0.5
@@ -100,9 +100,17 @@ For example (not to scale):
 		</g>
 	}
 
+	const getTimeStamps = async () => {
+		const startTime = Date.now();
+		let response = await fetch('https://api.jobtread.com/healthz');
+		const result = Date.now() - startTime;
+		return result
+	}
+
 	class BarChart extends React.Component {
 		state = {
 			data: [
+			/*
 				{ name: 'Mon', value: 20 },
 				{ name: 'Tue', value: 40 },
 				{ name: 'Wed', value: 35 },
@@ -110,7 +118,29 @@ For example (not to scale):
 				{ name: 'Fri', value: 55 },
 				{ name: 'Sat', value: 40 },
 				{ name: 'Sun', value: 30 }
+				*/
 			]
+		}
+
+		componentDidMount() {
+			setInterval(() => {
+				const arr = []
+				getTimeStamps()
+					.then(result => {
+						// arr.push(data);
+						console.log("Time", result);
+						var list = [... this.state.data];
+						if( list.length >= 10 )
+							list.shift();
+
+						list.push({name: result, value: result});
+
+						this.setState({data: list});
+						
+					}).catch(err => {
+						throw new Error('messed up')
+					});
+			}, 1000);
 		}
 
 		render() {
